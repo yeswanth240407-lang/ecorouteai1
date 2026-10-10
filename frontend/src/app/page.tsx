@@ -85,6 +85,8 @@ export default function EcoRouteAIDashboard() {
   const loadCityScenario = async (cityKey: string, currentPriority: string) => {
     setIsLoading(true);
     setErrorMessage(null);
+    setOptimizationResult(null);
+    setSelectedRouteId(null);
     try {
       const res = await fetch(`/api/routes/sample?city=${cityKey}`);
       if (!res.ok) {
@@ -149,6 +151,7 @@ export default function EcoRouteAIDashboard() {
 
   const handleCityChange = (cityId: string) => {
     setSelectedCity(cityId);
+    loadCityScenario(cityId, priority);
   };
 
   const handlePriorityChange = (p: "GREENEST" | "BALANCED" | "FASTEST" | "CHEAPEST") => {
@@ -191,12 +194,31 @@ export default function EcoRouteAIDashboard() {
 
   const handleApplyAgentPlan = (newScenario?: any, newResult?: any, newPriority?: string) => {
     if (newScenario) {
-      setScenario(newScenario);
+      // Force new reference so MapView triggers re-render
+      setScenario({ ...newScenario });
       if (newScenario.traffic_congestion_level) setTraffic(newScenario.traffic_congestion_level);
       if (newScenario.weather_condition) setWeather(newScenario.weather_condition);
+
+      // Check if new depot matches a known city hub and update selectedCity badge
+      const depotName = newScenario.depot?.name?.toLowerCase() || "";
+      if (depotName.includes("chennai") || depotName.includes("ponneri") || depotName.includes("ennore")) {
+        setSelectedCity("chennai");
+      } else if (depotName.includes("bengaluru") || depotName.includes("bangalore") || depotName.includes("peenya")) {
+        setSelectedCity("bengaluru");
+      } else if (depotName.includes("mumbai") || depotName.includes("bhiwandi")) {
+        setSelectedCity("mumbai");
+      } else if (depotName.includes("delhi") || depotName.includes("okhla")) {
+        setSelectedCity("delhi");
+      } else if (depotName.includes("hyderabad") || depotName.includes("shamshabad")) {
+        setSelectedCity("hyderabad");
+      } else if (depotName.includes("pune") || depotName.includes("chakan")) {
+        setSelectedCity("pune");
+      } else if (depotName.includes("kolkata") || depotName.includes("dankuni")) {
+        setSelectedCity("kolkata");
+      }
     }
     if (newResult) {
-      setOptimizationResult(newResult);
+      setOptimizationResult({ ...newResult });
       if (newResult.best_route?.route_id) {
         setSelectedRouteId(newResult.best_route.route_id);
       }

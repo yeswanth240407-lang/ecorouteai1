@@ -22,18 +22,33 @@ export default function MapView({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
 
+  // Cleanup map instance on unmount to prevent 'Map container is already initialized' error
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+        layerGroupRef.current = null;
+      }
+    };
+  }, []);
 
+  useEffect(() => {
+    if (!mapContainerRef.current || !depot) return;
+
+    // Initialize Leaflet map instance if not created
     if (!mapInstanceRef.current) {
-      // Initialize Leaflet map with India center
-      const map = L.map(mapContainerRef.current, {
+      const container = mapContainerRef.current;
+      if ((container as any)._leaflet_id) {
+        delete (container as any)._leaflet_id;
+      }
+
+      const map = L.map(container, {
         center: [depot.lat, depot.lng],
         zoom: 12,
         zoomControl: true,
       });
 
-      // Standard OpenStreetMap tiles (100% free, no watermark, comprehensive road network across India)
       L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19,
@@ -48,8 +63,14 @@ export default function MapView({
     const layers = layerGroupRef.current;
     if (!map || !layers) return;
 
+    // Ensure map container size is recalculated
+    map.invalidateSize();
+
     // Clear previous markers & polylines
     layers.clearLayers();
+
+    // Pan map to new depot location immediately
+    map.setView([depot.lat, depot.lng], 12);
 
     // 1. Add Depot Marker (Distinct Green Warehouse Badge)
     const depotIcon = L.divIcon({
@@ -70,70 +91,105 @@ export default function MapView({
     const bounds = L.latLngBounds([[depot.lat, depot.lng]]);
 
     // 2. Add Stop Markers (Numbered Blue Badges)
-    stops.forEach((stop, index) => {
-      bounds.extend([stop.lat, stop.lng]);
-      const stopIcon = L.divIcon({
-        className: "custom-stop-icon",
-        html: `
-          <div style="background: #2563eb; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.45);">
-            ${index + 1}
-          </div>
-        `,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14],
-      });
+    if (stops && stops.length > 0) {
+      stops.forEach((stop, index) => {
+        bounds.extend([stop.lat, stop.lng]);
+        const stopIcon = L.divIcon({
+          className: "custom-stop-icon",
+          html: `
+            <div style="background: #2563eb; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.45);">
+              ${index + 1}
+            </div>
+          `,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+        });
 
-      L.marker([stop.lat, stop.lng], { icon: stopIcon })
-        .bindPopup(`<div style="color: #0f172a; font-family: sans-serif; font-size: 12px;"><b>Stop #${index + 1}: ${stop.name}</b><br/>Demand: <b>${stop.demand} kg</b></div>`)
-        .addTo(layers);
-    });
+        L.marker([stop.lat, stop.lng], { icon: stopIcon })
+          .bindPopup(`<div style="color: #0f172a; font-family: sans-serif; font-size: 12px;"><b>Stop #${index + 1}: ${stop.name}</b><br/>Demand: <b>${stop.demand} kg</b></div>`)
+          .addTo(layers);
+      });
+    }
 
     // 3. Render Baseline Route Polyline (dashed gray line)
+    // Only include geometry that is in proximity to current depot (within 3.5 degrees)
     if (baselineGeometry && baselineGeometry.length > 1) {
-      L.polyline(baselineGeometry, {
-        color: "#64748b",
-        weight: 3.5,
-        dashArray: "7, 9",
-        opacity: 0.65,
-      }).bindPopup(`<div style="color: #0f172a; font-size: 12px;"><b>Unoptimized Baseline</b></div>`).addTo(layers);
+      const validBaseline = baselineGeometry.filter(
+        ([lat, lng]) => Math.abs(lat - depot.lat) < 3.5 && Math.abs(lng - depot.lng) < 3.5
+      );
+      if (validBaseline.length > 1) {
+        L.polyline(validBaseline, {
+          color: "#64748b",
+          weight: 3.5,
+          dashArray: "7, 9",
+          opacity: 0.65,
+        }).bindPopup(`<div style="color: #0f172a; font-size: 12px;"><b>Unoptimized Baseline</b></div>`).addTo(layers);
+      }
     }
 
     // 4. Render Active Optimized Route Polyline (vibrant green with outer border)
     if (routeGeometry && routeGeometry.length > 1) {
-      // Glow/border underlay
-      L.polyline(routeGeometry, {
-        color: "#065f46",
-        weight: 8,
-        opacity: 0.5,
-      }).addTo(layers);
+      const validRoute = routeGeometry.filter(
+        ([lat, lng]) => Math.abs(lat - depot.lat) < 3.5 && Math.abs(lng - depot.lng) < 3.5
+      );
 
-      // Core route line
-      const activePolyline = L.polyline(routeGeometry, {
-        color: "#10b981",
-        weight: 5,
-        opacity: 0.95,
-        lineJoin: "round",
-        lineCap: "round",
-      }).bindPopup(`<div style="color: #0f172a; font-size: 12px;"><b>${selectedRouteName || "Optimized Green Route"}</b></div>`);
-      
-      activePolyline.addTo(layers);
-      
-      routeGeometry.forEach(([lat, lng]) => bounds.extend([lat, lng]));
+      if (validRoute.length > 1) {
+        // Glow/border underlay
+        L.polyline(validRoute, {
+          color: "#065f46",
+          weight: 8,
+          opacity: 0.5,
+        }).addTo(layers);
+
+        // Core route line
+        const activePolyline = L.polyline(validRoute, {
+          color: "#10b981",
+          weight: 5,
+          opacity: 0.95,
+          lineJoin: "round",
+          lineCap: "round",
+        }).bindPopup(`<div style="color: #0f172a; font-size: 12px;"><b>${selectedRouteName || "Optimized Green Route"}</b></div>`);
+        
+        activePolyline.addTo(layers);
+        
+        validRoute.forEach(([lat, lng]) => bounds.extend([lat, lng]));
+      }
     }
 
-    if (bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [45, 45], maxZoom: 14 });
+    // Always explicitly pan and center on current depot and stops
+    if (stops && stops.length > 0) {
+      // Calculate center of depot and all stops
+      let minLat = depot.lat;
+      let maxLat = depot.lat;
+      let minLng = depot.lng;
+      let maxLng = depot.lng;
+
+      stops.forEach((s) => {
+        if (s.lat < minLat) minLat = s.lat;
+        if (s.lat > maxLat) maxLat = s.lat;
+        if (s.lng < minLng) minLng = s.lng;
+        if (s.lng > maxLng) maxLng = s.lng;
+      });
+
+      const fitBounds = L.latLngBounds([minLat, minLng], [maxLat, maxLng]);
+      map.fitBounds(fitBounds, { padding: [45, 45], maxZoom: 14 });
+    } else {
+      map.setView([depot.lat, depot.lng], 12);
     }
 
-    setTimeout(() => {
-      map.invalidateSize();
+    const timer = setTimeout(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
     }, 150);
 
-  }, [depot, stops, routeGeometry, baselineGeometry, selectedRouteName]);
+    return () => clearTimeout(timer);
+
+  }, [depot?.lat, depot?.lng, stops, routeGeometry, baselineGeometry, selectedRouteName]);
 
   return (
     <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-900">
-      <div ref={mapContainerRef} className="w-full h-full min-h-[480px] z-0" />
+      <div ref={mapContainerRef} className="w-full h-full min-h-[300px] z-0" />
       
       {/* Map Legend */}
       <div className="absolute bottom-4 left-4 z-10 bg-slate-900/90 backdrop-blur-md px-3.5 py-2.5 rounded-xl border border-slate-700/60 text-xs shadow-xl flex items-center space-x-4">
