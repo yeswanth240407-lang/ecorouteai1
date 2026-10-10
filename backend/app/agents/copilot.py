@@ -53,9 +53,19 @@ class LogisticsAICopilot:
         geo_result = await IndianGeocodingService.geocode_query(user_msg)
 
         if geo_result:
-            if geo_result.get("is_known_hub"):
-                # User wants to switch to or view an Indian City Hub
-                hub_key = geo_result["hub_key"]
+            associated_hub = geo_result.get("associated_hub")
+            is_hub = geo_result.get("is_known_hub", False)
+
+            # Check if this requires switching hub (explicit switch or location in another city)
+            current_hub_name = depot.name.lower()
+            needs_hub_switch = is_hub or (
+                associated_hub and associated_hub in INDIAN_HUBS_DB and
+                associated_hub not in current_hub_name and
+                INDIAN_HUBS_DB[associated_hub]["city_name"].lower() not in current_hub_name
+            )
+
+            if is_hub or needs_hub_switch:
+                hub_key = geo_result.get("hub_key") or associated_hub or "bengaluru"
                 hub = INDIAN_HUBS_DB[hub_key]
                 new_depot = Stop(
                     id=f"{hub_key}-depot",
@@ -65,17 +75,35 @@ class LogisticsAICopilot:
                     demand=0.0,
                     service_duration=0
                 )
-                new_stops = [
-                    Stop(
+
+                demand_match = re.search(r"(\d+)\s*(kg|kilos|kgs)?", user_msg)
+                demand_val = float(demand_match.group(1)) if demand_match else 50.0
+
+                new_stops = []
+                target_added = False
+                for idx, s in enumerate(hub["stops"]):
+                    is_target = geo_result["name"].lower() in s["name"].lower()
+                    stop_demand = demand_val if is_target else s["demand"]
+                    if is_target:
+                        target_added = True
+                    new_stops.append(Stop(
                         id=f"{hub_key}-stop-{idx+1}",
                         name=s["name"],
                         lat=s["lat"],
                         lng=s["lng"],
-                        demand=s["demand"],
+                        demand=stop_demand,
                         service_duration=12
-                    )
-                    for idx, s in enumerate(hub["stops"])
-                ]
+                    ))
+
+                if not target_added and not is_hub:
+                    new_stops.append(Stop(
+                        id=f"stop-{uuid.uuid4().hex[:6]}",
+                        name=f"{geo_result['name']} ({geo_result.get('state', 'India')})",
+                        lat=geo_result["lat"],
+                        lng=geo_result["lng"],
+                        demand=demand_val,
+                        service_duration=12
+                    ))
 
                 scenario["depot"] = new_depot.model_dump()
                 scenario["stops"] = [s.model_dump() for s in new_stops]
@@ -85,21 +113,23 @@ class LogisticsAICopilot:
                 thought_chain.append({
                     "agent": "Data Agent",
                     "avatar": "📍",
-                    "thought": f"Switched to Indian logistics hub: {hub['city_name']}, {hub['state']}. Coordinates: [{new_depot.lat}, {new_depot.lng}]."
+                    "thought": f"Centered dispatch on {hub['city_name']} Hub: {new_depot.name}. Geocoded stop: {geo_result['name']} ({demand_val} kg)."
                 })
-                action_taken = "SWITCH_HUB"
-                reply = f"Switched dispatch operations to **{hub['city_name']}, {hub['state']}** with central depot at **{new_depot.name}** and {len(new_stops)} stops."
+                action_taken = "SWITCH_HUB" if is_hub else "ADD_STOP"
+                if is_hub:
+                    reply = f"Switched dispatch operations to **{hub['city_name']}, {hub['state']}** with central depot at **{new_depot.name}** and {len(new_stops)} stops."
+                else:
+                    reply = f"📍 Identified location: **{geo_result['name']}** in **{hub['city_name']}, {geo_result.get('state', 'India')}** (`{geo_result['lat']:.4f}° N, {geo_result['lng']:.4f}° E`). Added to delivery stops with **{demand_val} kg** cargo."
 
             else:
-                # Add the specific Indian location (e.g. Ponneri, Ambattur, etc.)
+                # Add local Indian location to current hub
                 loc_name = geo_result["name"]
                 lat = geo_result["lat"]
                 lng = geo_result["lng"]
                 state_name = geo_result.get("state", "India")
 
-                # Extract demand if mentioned, else 80kg
                 demand_match = re.search(r"(\d+)\s*(kg|kilos|kgs)?", user_msg)
-                demand_val = float(demand_match.group(1)) if demand_match else 85.0
+                demand_val = float(demand_match.group(1)) if demand_match else 75.0
 
                 new_stop = Stop(
                     id=f"stop-{uuid.uuid4().hex[:6]}",
@@ -131,7 +161,7 @@ class LogisticsAICopilot:
             action_taken = "CHANGE_PRIORITY"
             reply = "Optimization objective updated to **FASTEST**. Route re-calculated to prioritize highways."
 
-        elif any(w in user_msg for w in ["green", "greenest", "eco", "emission", "co2"]):
+        elif any(w in user_msg for w in ["green", "greenest", "eco", "emission", "co2", "carbon"]):
             priority = OptimizationPriority.GREENEST.value
             thought_chain.append({
                 "agent": "Emissions Agent",
@@ -151,15 +181,15 @@ class LogisticsAICopilot:
             action_taken = "DISRUPTION"
             reply = "Simulated **Monsoon Rain** conditions across the route network."
 
-        elif any(w in user_msg for w in ["traffic", "jam", "gridlock", "congestion"]):
-            traffic = 1.90
+        elif any(w in user_msg for w in ["traffic", "jam", "gridlock", "congestion", "silk board"]):
+            traffic = 1.95
             thought_chain.append({
                 "agent": "Monitor Agent",
                 "avatar": "🚨",
-                "thought": "Peak Indian urban traffic gridlock detected (1.9x delay). Re-routing."
+                "thought": "Peak Indian urban traffic gridlock detected (1.95x delay). Re-routing."
             })
             action_taken = "DISRUPTION"
-            reply = "Simulated **Severe Traffic Gridlock** (1.9x friction factor)."
+            reply = "Simulated **Severe Traffic Gridlock** (1.95x friction factor). Re-optimizing road sequence."
 
         else:
             thought_chain.append({
@@ -171,7 +201,8 @@ class LogisticsAICopilot:
                 f"I am Eco RouteAI. Currently managing dispatch for **{depot.name}** with **{len(stops)} stops**.\n"
                 f"You can name any Indian city or town, for example:\n"
                 f"• *'Ponneri'* or *'Add delivery to Ponneri 75kg'*\n"
-                f"• *'Switch to Chennai'*, *'Switch to Pune'*, *'Switch to Kolkata'*\n"
+                f"• *'Add urgent delivery to Indiranagar (50 kg)'*\n"
+                f"• *'Switch to Chennai'*, *'Switch to Bengaluru'*, *'Switch to Mumbai'*\n"
                 f"• *'Prioritize fastest transit'* or *'Optimize for greenest emissions'*"
             )
 
@@ -186,6 +217,11 @@ class LogisticsAICopilot:
             
             from app.api.routes import INDIAN_VEHICLES
             vehicles = [Vehicle(**v) for v in scenario.get("vehicles", [])] if scenario.get("vehicles") else INDIAN_VEHICLES
+
+            # Update scenario properties
+            scenario["priority"] = priority
+            scenario["traffic_congestion_level"] = traffic
+            scenario["weather_condition"] = weather
 
             state = {
                 "request_id": str(uuid.uuid4()),
@@ -228,6 +264,6 @@ class LogisticsAICopilot:
             reply=reply,
             thought_chain=thought_chain,
             action_taken=action_taken,
-            new_scenario=scenario if action_taken in ["ADD_STOP", "SWITCH_HUB"] else None,
+            new_scenario=scenario if action_taken in ["ADD_STOP", "SWITCH_HUB", "CHANGE_PRIORITY", "DISRUPTION"] else None,
             optimization_result=opt_result
         )

@@ -78,19 +78,34 @@ export default function AIAgentChatPanel({
     setIsThinking(true);
 
     try {
-      const res = await fetch("/api/routes/agent-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: textToSend,
-          scenario,
-          current_priority: currentPriority,
-          traffic_level: trafficLevel,
-          weather: weather,
-        }),
-      });
+      let res;
+      try {
+        res = await fetch("/api/routes/agent-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: textToSend,
+            scenario,
+            current_priority: currentPriority,
+            traffic_level: trafficLevel,
+            weather: weather,
+          }),
+        });
+      } catch (directErr) {
+        res = await fetch("http://127.0.0.1:8000/api/routes/agent-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: textToSend,
+            scenario,
+            current_priority: currentPriority,
+            traffic_level: trafficLevel,
+            weather: weather,
+          }),
+        });
+      }
 
-      if (res.ok) {
+      if (res && res.ok) {
         const data = await res.json();
         const agentMsgId = `agent-${Date.now()}`;
         const agentMsg: ChatMessage = {
@@ -104,12 +119,12 @@ export default function AIAgentChatPanel({
         setMessages((prev) => [...prev, agentMsg]);
         setExpandedThoughts((prev) => ({ ...prev, [agentMsgId]: true }));
 
-        // If the agent took an action that updated the route or scenario
+        // If the agent took an action that updated the route or scenario, apply it live!
         if (data.optimization_result || data.new_scenario) {
           onApplyNewPlan(
-            data.new_scenario,
+            data.new_scenario || scenario,
             data.optimization_result,
-            data.optimization_result?.priority
+            data.optimization_result?.priority || currentPriority
           );
         }
       } else {

@@ -190,10 +190,16 @@ export default function EcoRouteAIDashboard() {
   };
 
   const handleApplyAgentPlan = (newScenario?: any, newResult?: any, newPriority?: string) => {
-    if (newScenario) setScenario(newScenario);
+    if (newScenario) {
+      setScenario(newScenario);
+      if (newScenario.traffic_congestion_level) setTraffic(newScenario.traffic_congestion_level);
+      if (newScenario.weather_condition) setWeather(newScenario.weather_condition);
+    }
     if (newResult) {
       setOptimizationResult(newResult);
-      setSelectedRouteId(newResult.best_route.route_id);
+      if (newResult.best_route?.route_id) {
+        setSelectedRouteId(newResult.best_route.route_id);
+      }
     }
     if (newPriority) {
       setPriority(newPriority as any);
@@ -661,7 +667,42 @@ export default function EcoRouteAIDashboard() {
           )}
 
           {viewMode === "chat" && (
-            <div className="animate-in fade-in duration-200">
+            <div className="flex flex-col space-y-4 animate-in fade-in duration-200">
+              {/* Synchronized Real-Time Route Map Directly in Copilot View */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <h3 className="font-semibold text-xs text-white uppercase tracking-wider flex items-center space-x-1.5">
+                      <MapIcon className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Live Road Map (Synchronized with AI Copilot)</span>
+                    </h3>
+                  </div>
+                  {activeRoute && (
+                    <div className="text-[11px] text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono">
+                      {activeRoute.vehicle_name} • {activeRoute.total_distance_km} km • -{optimizationResult?.co2_saved_pct}% CO₂
+                    </div>
+                  )}
+                </div>
+
+                <div className="h-[300px] w-full rounded-xl overflow-hidden border border-slate-800">
+                  {scenario ? (
+                    <MapView
+                      depot={scenario.depot}
+                      stops={scenario.stops}
+                      routeGeometry={activeRoute?.geometry || []}
+                      baselineGeometry={baselineRoute?.geometry || []}
+                      selectedRouteName={activeRoute?.title}
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-xl bg-slate-950 flex items-center justify-center text-slate-400 font-mono text-xs">
+                      Loading Indian Logistics Route Map...
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Conversational AI Agent Copilot Panel */}
               <AIAgentChatPanel
                 scenario={scenario}
                 currentPriority={priority}

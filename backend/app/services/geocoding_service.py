@@ -195,19 +195,64 @@ INDIAN_HUBS_DB: Dict[str, Dict[str, Any]] = {
 class IndianGeocodingService:
     _cache: Dict[str, Tuple[str, float, float, str]] = {}
 
+    # Popular Indian logistics corridors and landmarks for instant zero-latency matching
+    WELL_KNOWN_LANDMARKS = {
+        "silk board": {"name": "Silk Board Junction Hub", "lat": 12.9176, "lng": 77.6238, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "marathahalli": {"name": "Marathahalli Bridge Logistics Hub", "lat": 12.9591, "lng": 77.6974, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "electronic city": {"name": "Electronic City Toll Gateway", "lat": 12.8452, "lng": 77.6602, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "indiranagar": {"name": "Indiranagar 100ft Road Retail", "lat": 12.9784, "lng": 77.6408, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "whitefield": {"name": "Whitefield ITPL Tech Corridor", "lat": 12.9698, "lng": 77.7499, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "koramangala": {"name": "Koramangala 4th Block Hub", "lat": 12.9352, "lng": 77.6245, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "peenya": {"name": "Peenya Industrial Logistics Hub", "lat": 13.0285, "lng": 77.5197, "state": "Karnataka", "associated_hub": "bengaluru"},
+        "ponneri": {"name": "Ponneri Industrial Smart City", "lat": 13.3323, "lng": 80.1983, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "ambattur": {"name": "Ambattur Industrial Estate", "lat": 13.0983, "lng": 80.1623, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "sriperumbudur": {"name": "Sriperumbudur Auto Cluster Hub", "lat": 12.9675, "lng": 79.9441, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "guindy": {"name": "Guindy Industrial Estate & IT Park", "lat": 13.0067, "lng": 80.2025, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "sholinganallur": {"name": "OMR Sholinganallur Tech Corridor", "lat": 12.9010, "lng": 80.2279, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "t nagar": {"name": "T. Nagar Commercial Hub", "lat": 13.0418, "lng": 80.2341, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "adyar": {"name": "Adyar Retail Commercial Corridor", "lat": 13.0012, "lng": 80.2565, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "velachery": {"name": "Velachery Express Terminal", "lat": 12.9759, "lng": 80.2212, "state": "Tamil Nadu", "associated_hub": "chennai"},
+        "bkc": {"name": "Bandra Kurla Complex (BKC)", "lat": 19.0657, "lng": 72.8687, "state": "Maharashtra", "associated_hub": "mumbai"},
+        "bandra": {"name": "Bandra Kurla Complex (BKC)", "lat": 19.0657, "lng": 72.8687, "state": "Maharashtra", "associated_hub": "mumbai"},
+        "andheri": {"name": "Andheri East MIDC Commercial", "lat": 19.1197, "lng": 72.8664, "state": "Maharashtra", "associated_hub": "mumbai"},
+        "powai": {"name": "Powai Hiranandani Tech Hub", "lat": 19.1176, "lng": 72.9060, "state": "Maharashtra", "associated_hub": "mumbai"},
+        "hinjawadi": {"name": "Hinjawadi Rajiv Gandhi Infotech Park", "lat": 18.5913, "lng": 73.7389, "state": "Maharashtra", "associated_hub": "pune"},
+        "hitec city": {"name": "Hitec City Cyber Towers", "lat": 17.4504, "lng": 78.3808, "state": "Telangana", "associated_hub": "hyderabad"},
+        "gachibowli": {"name": "Gachibowli Financial District", "lat": 17.4401, "lng": 78.3489, "state": "Telangana", "associated_hub": "hyderabad"},
+        "gurgaon": {"name": "Gurgaon DLF Cyber City", "lat": 28.4950, "lng": 77.0895, "state": "Haryana", "associated_hub": "delhi"},
+        "cyber city": {"name": "Gurgaon DLF Cyber City", "lat": 28.4950, "lng": 77.0895, "state": "Haryana", "associated_hub": "delhi"},
+        "noida": {"name": "Noida Sector 62 IT Park", "lat": 28.6280, "lng": 77.3649, "state": "Uttar Pradesh", "associated_hub": "delhi"},
+        "salt lake": {"name": "Salt Lake Sector V IT Hub", "lat": 22.5802, "lng": 88.4344, "state": "West Bengal", "associated_hub": "kolkata"},
+        "howrah": {"name": "Howrah Freight Terminal", "lat": 22.5850, "lng": 88.3468, "state": "West Bengal", "associated_hub": "kolkata"},
+    }
+
     @classmethod
     async def geocode_query(cls, query: str) -> Optional[Dict[str, Any]]:
         """
         Geocodes any Indian town, city, or district using curated DB + Nominatim.
-        Returns:
-            {"name": "...", "lat": ..., "lng": ..., "state": "...", "is_known_hub": bool}
+        Supports natural language prompts (e.g. 'Add urgent delivery to Indiranagar 50kg').
         """
-        clean_q = query.lower().strip()
-        clean_q = clean_q.replace("add", "").replace("deliver to", "").replace("to", "").strip()
+        raw_low = query.lower().strip()
+        is_switch_intent = any(w in raw_low for w in ["switch", "change", "move to", "select city", "hub", "go to"])
 
-        # Check in curated DB keys or names
+        # 1. Check known landmark dictionary
+        for landmark_key, landmark_data in cls.WELL_KNOWN_LANDMARKS.items():
+            if landmark_key in raw_low:
+                # If user explicitly said switch to that hub or if it's a stop
+                return {
+                    "name": landmark_data["name"],
+                    "lat": landmark_data["lat"],
+                    "lng": landmark_data["lng"],
+                    "state": landmark_data["state"],
+                    "is_known_hub": is_switch_intent and landmark_key in INDIAN_HUBS_DB,
+                    "associated_hub": landmark_data.get("associated_hub"),
+                    "hub_key": landmark_data.get("associated_hub")
+                }
+
+        # 2. Check in curated City Hubs (e.g. "chennai", "bengaluru", "mumbai")
         for key, hub in INDIAN_HUBS_DB.items():
-            if key in clean_q or hub["city_name"].lower() in clean_q:
+            city_low = hub["city_name"].lower()
+            if key in raw_low or city_low in raw_low or (key == "bengaluru" and "bangalore" in raw_low) or (key == "chennai" and "madras" in raw_low) or (key == "mumbai" and "bombay" in raw_low) or (key == "kolkata" and "calcutta" in raw_low):
                 depot = hub["depot"]
                 return {
                     "name": hub["city_name"],
@@ -218,10 +263,13 @@ class IndianGeocodingService:
                     "hub_key": key
                 }
 
-        # Check inside sub-stops of curated DB (e.g. "ponneri" in chennai hub)
+        # 3. Check inside curated DB sub-stops
         for key, hub in INDIAN_HUBS_DB.items():
             for stop in hub["stops"]:
-                if clean_q in stop["name"].lower():
+                stop_low = stop["name"].lower()
+                # Check for significant keywords
+                words = [w for w in stop_low.replace("(", " ").replace(")", " ").split() if len(w) >= 4 and w not in {"road", "tech", "park", "hub", "commercial", "industrial", "estate", "phase", "zone", "central", "retail", "express"}]
+                if any(w in raw_low for w in words):
                     return {
                         "name": stop["name"],
                         "lat": stop["lat"],
@@ -231,7 +279,15 @@ class IndianGeocodingService:
                         "associated_hub": key
                     }
 
-        # Live Nominatim OpenStreetMap Geocoding for ANY town/village/district across India
+        # 4. Clean query for live OpenStreetMap Nominatim geocoding
+        # Strip common instructions & weight tokens
+        import re
+        clean_q = re.sub(r"(add|urgent|delivery|deliver|to|at|in|stop|order|parcel|cargo|\d+\s*(kg|kilos|kgs)?|heavy|express)", " ", raw_low)
+        clean_q = re.sub(r"[^a-zA-Z\s]", " ", clean_q).strip()
+
+        if len(clean_q) < 3:
+            return None
+
         if clean_q in cls._cache:
             name, lat, lng, state = cls._cache[clean_q]
             return {"name": name, "lat": lat, "lng": lng, "state": state, "is_known_hub": False}
@@ -249,7 +305,6 @@ class IndianGeocodingService:
                         lat = float(first.get("lat"))
                         lng = float(first.get("lon"))
                         
-                        # Extract state name
                         parts = [p.strip() for p in display_name.split(",")]
                         state = parts[-2] if len(parts) >= 2 else "India"
                         short_name = parts[0] + (f", {parts[1]}" if len(parts) > 2 else "")
@@ -263,6 +318,7 @@ class IndianGeocodingService:
                             "is_known_hub": False
                         }
         except Exception as e:
-            logger.warning(f"Nominatim geocoding failed for '{query}': {e}")
+            logger.warning(f"Nominatim geocoding failed for '{clean_q}': {e}")
 
         return None
+
