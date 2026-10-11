@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, HTTPException, Query
 from app.models.schemas import RouteRequest, RouteResponse, Stop, Vehicle, VehicleType, OptimizationPriority
 from app.agents.graph import eco_route_app
+from app.agents.advisory_agent import run_advisory_agent
 from app.services.geocoding_service import INDIAN_HUBS_DB, IndianGeocodingService
 
 router = APIRouter()
@@ -263,3 +264,32 @@ async def plan_orchestration_endpoint(raw_body: Dict[str, Any]):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Agent Plan execution failed: {str(e)}")
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Predictive Risk & Advisory Agent Endpoint
+# ─────────────────────────────────────────────────────────────────────────────
+
+class AdvisoryRequest(RouteRequest.__class__.__bases__[0]):
+    scenario: Dict[str, Any]
+    optimization_result: Optional[Dict[str, Any]] = None
+
+from pydantic import BaseModel
+
+class AdvisoryRequestBody(BaseModel):
+    scenario: Dict[str, Any]
+    optimization_result: Optional[Dict[str, Any]] = None
+
+@router.post("/advisory")
+async def advisory_agent_endpoint(body: AdvisoryRequestBody):
+    """
+    Predictive Risk & Advisory Agent — analyses current delivery scenario and
+    returns smart alerts, recommendations, and carbon credit forecasts.
+    """
+    try:
+        result = run_advisory_agent(
+            scenario=body.scenario,
+            optimization_result=body.optimization_result,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Advisory Agent failed: {str(e)}")

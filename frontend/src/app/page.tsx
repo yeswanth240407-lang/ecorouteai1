@@ -28,6 +28,7 @@ import AgentActivityLogs from "../components/AgentActivityLogs";
 import EngineInspectorModal from "../components/EngineInspectorModal";
 import AIAgentChatPanel from "../components/AIAgentChatPanel";
 import EcoRouteAgentPlan from "../components/EcoRouteAgentPlan";
+import AdvisoryAgentPanel from "../components/AdvisoryAgentPanel";
 
 // Dynamically import MapView to disable SSR for Leaflet
 const MapView = dynamic(() => import("../components/MapView"), {
@@ -792,6 +793,12 @@ export default function EcoRouteAIDashboard() {
                 trafficLevel={traffic}
                 weather={weather}
                 onApplyNewPlan={handleApplyAgentPlan}
+              />
+
+              {/* Predictive Risk & Advisory Agent Panel */}
+              <AdvisoryAgentPanel
+                scenario={scenario}
+                optimizationResult={optimizationResult}
               />
             </div>
           )}
