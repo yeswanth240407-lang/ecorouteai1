@@ -148,12 +148,18 @@ export default function AIAgentChatPanel({
   };
 
   const quickPrompts = [
-    "Ponneri (75 kg)",
+    "Switch to Madurai",
+    "Switch to Patna",
+    "Switch to Surat",
+    "Switch to Varanasi",
+    "Switch to Guwahati",
+    "Switch to Amritsar",
+    "Switch to Bhubaneswar",
+    "Optimize for greenest emissions",
+    "Simulate heavy monsoon rain",
+    "Switch to fastest route",
     "Add urgent delivery to Indiranagar (50 kg)",
     "Switch to Chennai Hub",
-    "Switch to fastest route",
-    "Simulate heavy monsoon rain",
-    "Optimize for greenest emissions",
   ];
 
   return (

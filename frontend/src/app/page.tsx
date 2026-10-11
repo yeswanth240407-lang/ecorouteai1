@@ -215,6 +215,52 @@ export default function EcoRouteAIDashboard() {
         setSelectedCity("pune");
       } else if (depotName.includes("kolkata") || depotName.includes("dankuni")) {
         setSelectedCity("kolkata");
+      } else if (depotName.includes("ahmedabad") || depotName.includes("vatva")) {
+        setSelectedCity("ahmedabad");
+      } else if (depotName.includes("kochi") || depotName.includes("kalamassery")) {
+        setSelectedCity("kochi");
+      } else if (depotName.includes("jaipur") || depotName.includes("sitapura")) {
+        setSelectedCity("jaipur");
+      } else if (depotName.includes("coimbatore") || depotName.includes("ganapathy")) {
+        setSelectedCity("coimbatore");
+      } else if (depotName.includes("lucknow") || depotName.includes("amausi")) {
+        setSelectedCity("lucknow");
+      } else if (depotName.includes("chandigarh") || depotName.includes("mohali")) {
+        setSelectedCity("chandigarh");
+      } else if (depotName.includes("visakhapatnam") || depotName.includes("vizag")) {
+        setSelectedCity("visakhapatnam");
+      } else if (depotName.includes("indore") || depotName.includes("pithampur")) {
+        setSelectedCity("indore");
+      } else if (depotName.includes("madurai") || depotName.includes("mattuthavani") || depotName.includes("kappalur")) {
+        setSelectedCity("madurai");
+      } else if (depotName.includes("trichy") || depotName.includes("tiruchirappalli") || depotName.includes("golden rock")) {
+        setSelectedCity("trichy");
+      } else if (depotName.includes("surat") || depotName.includes("sachin")) {
+        setSelectedCity("surat");
+      } else if (depotName.includes("bhopal") || depotName.includes("mandideep")) {
+        setSelectedCity("bhopal");
+      } else if (depotName.includes("nagpur") || depotName.includes("butibori")) {
+        setSelectedCity("nagpur");
+      } else if (depotName.includes("patna") || depotName.includes("hajipur")) {
+        setSelectedCity("patna");
+      } else if (depotName.includes("bhubaneswar") || depotName.includes("khurda")) {
+        setSelectedCity("bhubaneswar");
+      } else if (depotName.includes("kanpur") || depotName.includes("panki")) {
+        setSelectedCity("kanpur");
+      } else if (depotName.includes("vadodara") || depotName.includes("baroda")) {
+        setSelectedCity("vadodara");
+      } else if (depotName.includes("thiruvananthapuram") || depotName.includes("trivandrum") || depotName.includes("attingal")) {
+        setSelectedCity("thiruvananthapuram");
+      } else if (depotName.includes("guwahati") || depotName.includes("amingaon")) {
+        setSelectedCity("guwahati");
+      } else if (depotName.includes("amritsar") || depotName.includes("raja sansi")) {
+        setSelectedCity("amritsar");
+      } else if (depotName.includes("dehradun") || depotName.includes("selaqui")) {
+        setSelectedCity("dehradun");
+      } else if (depotName.includes("varanasi") || depotName.includes("ramnagar")) {
+        setSelectedCity("varanasi");
+      } else if (depotName.includes("raipur") || depotName.includes("urla")) {
+        setSelectedCity("raipur");
       }
     }
     if (newResult) {
@@ -244,6 +290,21 @@ export default function EcoRouteAIDashboard() {
     { id: "chandigarh", name: "Chandigarh", state: "Punjab & Haryana" },
     { id: "visakhapatnam", name: "Visakhapatnam", state: "Andhra Pradesh" },
     { id: "indore", name: "Indore", state: "Madhya Pradesh" },
+    { id: "madurai", name: "Madurai", state: "Tamil Nadu" },
+    { id: "trichy", name: "Trichy (Tiruchirappalli)", state: "Tamil Nadu" },
+    { id: "surat", name: "Surat", state: "Gujarat" },
+    { id: "bhopal", name: "Bhopal", state: "Madhya Pradesh" },
+    { id: "nagpur", name: "Nagpur", state: "Maharashtra" },
+    { id: "patna", name: "Patna", state: "Bihar" },
+    { id: "bhubaneswar", name: "Bhubaneswar", state: "Odisha" },
+    { id: "kanpur", name: "Kanpur", state: "Uttar Pradesh" },
+    { id: "vadodara", name: "Vadodara (Baroda)", state: "Gujarat" },
+    { id: "thiruvananthapuram", name: "Thiruvananthapuram", state: "Kerala" },
+    { id: "guwahati", name: "Guwahati", state: "Assam" },
+    { id: "amritsar", name: "Amritsar", state: "Punjab" },
+    { id: "dehradun", name: "Dehradun", state: "Uttarakhand" },
+    { id: "varanasi", name: "Varanasi", state: "Uttar Pradesh" },
+    { id: "raipur", name: "Raipur", state: "Chhattisgarh" },
   ]).filter((c) =>
     c.name.toLowerCase().includes(citySearchQuery.toLowerCase()) ||
     c.state.toLowerCase().includes(citySearchQuery.toLowerCase())
