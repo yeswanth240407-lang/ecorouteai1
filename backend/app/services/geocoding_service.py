@@ -189,6 +189,186 @@ INDIAN_HUBS_DB: Dict[str, Dict[str, Any]] = {
             {"name": "Rajwada Central Wholesale Market", "lat": 22.7186, "lng": 75.8550, "demand": 140.0},
             {"name": "Palasia Business Hub", "lat": 22.7244, "lng": 75.8839, "demand": 100.0},
         ]
+    },
+    "madurai": {
+        "city_name": "Madurai",
+        "state": "Tamil Nadu",
+        "depot": {"name": "Madurai Ring Road Freight Terminal", "lat": 9.9252, "lng": 78.1198},
+        "stops": [
+            {"name": "Mattuthavani Integrated Terminal", "lat": 9.9482, "lng": 78.1565, "demand": 140.0},
+            {"name": "Kappalur Industrial Estate SIDCO", "lat": 9.8450, "lng": 78.0310, "demand": 170.0},
+            {"name": "Simmakkal Central Market", "lat": 9.9270, "lng": 78.1235, "demand": 120.0},
+            {"name": "Thirunagar Logistics Zone", "lat": 9.8765, "lng": 78.0712, "demand": 110.0},
+            {"name": "Vilangudi Industrial Area", "lat": 9.9610, "lng": 78.0980, "demand": 130.0},
+        ]
+    },
+    "trichy": {
+        "city_name": "Tiruchirappalli (Trichy)",
+        "state": "Tamil Nadu",
+        "depot": {"name": "Thuvakudi BHEL Logistics Hub", "lat": 10.7485, "lng": 78.7845},
+        "stops": [
+            {"name": "Tiruverumbur Heavy Industrial Corridor", "lat": 10.7675, "lng": 78.7565, "demand": 160.0},
+            {"name": "Central Bus Stand Commercial Hub", "lat": 10.7960, "lng": 78.6850, "demand": 120.0},
+            {"name": "Ariyamangalam Freight Warehouse", "lat": 10.8030, "lng": 78.7180, "demand": 140.0},
+            {"name": "Thillai Nagar Business Strip", "lat": 10.8240, "lng": 78.6890, "demand": 110.0},
+            {"name": "Srirangam Heritage Goods Depot", "lat": 10.8620, "lng": 78.6920, "demand": 130.0},
+        ]
+    },
+    "surat": {
+        "city_name": "Surat (Diamond & Textile Hub)",
+        "state": "Gujarat",
+        "depot": {"name": "Hazira Port & Industrial Freight Hub", "lat": 21.1180, "lng": 72.6350},
+        "stops": [
+            {"name": "Surat Diamond Bourse (DREAM City)", "lat": 21.0925, "lng": 72.7885, "demand": 180.0},
+            {"name": "Pandesara GIDC Textile Cluster", "lat": 21.1520, "lng": 72.8250, "demand": 190.0},
+            {"name": "Sachin Industrial Area GIDC", "lat": 21.0850, "lng": 72.8650, "demand": 150.0},
+            {"name": "Ring Road Textile Wholesale Market", "lat": 21.1920, "lng": 72.8420, "demand": 130.0},
+            {"name": "Adajan Commercial District", "lat": 21.1980, "lng": 72.7950, "demand": 110.0},
+        ]
+    },
+    "bhopal": {
+        "city_name": "Bhopal (City of Lakes)",
+        "state": "Madhya Pradesh",
+        "depot": {"name": "Mandideep Industrial Freight Corridor", "lat": 23.0845, "lng": 77.5185},
+        "stops": [
+            {"name": "Govindpura Industrial Area", "lat": 23.2560, "lng": 77.4520, "demand": 150.0},
+            {"name": "MP Nagar Commercial Zone Zone-1", "lat": 23.2335, "lng": 77.4345, "demand": 130.0},
+            {"name": "New Market TT Nagar", "lat": 23.2380, "lng": 77.3990, "demand": 110.0},
+            {"name": "Hoshangabad Road Logistics Strip", "lat": 23.1850, "lng": 77.4650, "demand": 140.0},
+            {"name": "Bairagarh Commercial Market", "lat": 23.2750, "lng": 77.3450, "demand": 120.0},
+        ]
+    },
+    "nagpur": {
+        "city_name": "Nagpur (Zero Mile Center of India)",
+        "state": "Maharashtra",
+        "depot": {"name": "MIHAN Multi-Modal Logistics Hub", "lat": 21.0620, "lng": 79.0520},
+        "stops": [
+            {"name": "Butibori Industrial Estate MIDC", "lat": 20.9250, "lng": 78.9850, "demand": 180.0},
+            {"name": "Sitabuldi Central Commercial Hub", "lat": 21.1460, "lng": 79.0830, "demand": 130.0},
+            {"name": "Kalamna Wholesale Grain Market", "lat": 21.1820, "lng": 79.1450, "demand": 160.0},
+            {"name": "Hingna Industrial Area MIDC", "lat": 21.1050, "lng": 78.9950, "demand": 140.0},
+            {"name": "Wardha Road Logistics Terminal", "lat": 21.0850, "lng": 79.0680, "demand": 120.0},
+        ]
+    },
+    "patna": {
+        "city_name": "Patna",
+        "state": "Bihar",
+        "depot": {"name": "Patliputra Industrial Freight Hub", "lat": 25.6320, "lng": 85.1120},
+        "stops": [
+            {"name": "Fatuha Industrial Logistics Area", "lat": 25.5180, "lng": 85.3120, "demand": 170.0},
+            {"name": "Bailey Road Commercial Corridor", "lat": 25.6120, "lng": 85.0950, "demand": 130.0},
+            {"name": "Fraser Road Central Business Zone", "lat": 25.6080, "lng": 85.1410, "demand": 120.0},
+            {"name": "Didarganj Cargo Freight Terminal", "lat": 25.5650, "lng": 85.2450, "demand": 150.0},
+            {"name": "Kankarbagh Commercial Strip", "lat": 25.5920, "lng": 85.1550, "demand": 110.0},
+        ]
+    },
+    "bhubaneswar": {
+        "city_name": "Bhubaneswar",
+        "state": "Odisha",
+        "depot": {"name": "Mancheswar Industrial Estate Hub", "lat": 20.3250, "lng": 85.8650},
+        "stops": [
+            {"name": "Infocity IT Corridor Chandaka", "lat": 20.3580, "lng": 85.8150, "demand": 150.0},
+            {"name": "Rasulgarh Freight Square", "lat": 20.3010, "lng": 85.8720, "demand": 140.0},
+            {"name": "Saheed Nagar Commercial Center", "lat": 20.2920, "lng": 85.8480, "demand": 120.0},
+            {"name": "Khordha Industrial Estate", "lat": 20.1850, "lng": 85.6250, "demand": 170.0},
+            {"name": "Nayapalli Tech Hub", "lat": 20.3020, "lng": 85.8180, "demand": 110.0},
+        ]
+    },
+    "kanpur": {
+        "city_name": "Kanpur",
+        "state": "Uttar Pradesh",
+        "depot": {"name": "Panki Industrial Logistics Hub", "lat": 26.4750, "lng": 80.2450},
+        "stops": [
+            {"name": "Fazalganj Industrial Estate", "lat": 26.4680, "lng": 80.3050, "demand": 160.0},
+            {"name": "The Mall Central Business District", "lat": 26.4650, "lng": 80.3550, "demand": 120.0},
+            {"name": "Jajmau Leather Cluster Hub", "lat": 26.4350, "lng": 80.4050, "demand": 180.0},
+            {"name": "Rania Industrial Corridor", "lat": 26.4250, "lng": 80.0850, "demand": 150.0},
+            {"name": "Govind Nagar Retail Hub", "lat": 26.4420, "lng": 80.3120, "demand": 110.0},
+        ]
+    },
+    "vadodara": {
+        "city_name": "Vadodara (Baroda)",
+        "state": "Gujarat",
+        "depot": {"name": "Makarpura GIDC Industrial Hub", "lat": 22.2520, "lng": 73.1850},
+        "stops": [
+            {"name": "Manjusar GIDC Chemical Corridor", "lat": 22.4550, "lng": 73.2350, "demand": 180.0},
+            {"name": "Alkapuri Business District", "lat": 22.3120, "lng": 73.1750, "demand": 120.0},
+            {"name": "Nandesari Industrial Area GIDC", "lat": 22.4150, "lng": 73.1150, "demand": 160.0},
+            {"name": "Gorwa Industrial Estate", "lat": 22.3350, "lng": 73.1550, "demand": 130.0},
+            {"name": "Waghodia Auto Components SEZ", "lat": 22.2850, "lng": 73.3850, "demand": 150.0},
+        ]
+    },
+    "thiruvananthapuram": {
+        "city_name": "Thiruvananthapuram (Trivandrum)",
+        "state": "Kerala",
+        "depot": {"name": "Technopark Phase 1 & 3 IT Hub", "lat": 8.5580, "lng": 76.8810},
+        "stops": [
+            {"name": "Vizhinjam International Seaport Hub", "lat": 8.3750, "lng": 77.0050, "demand": 190.0},
+            {"name": "Kochuveli Industrial Freight Strip", "lat": 8.5080, "lng": 76.8920, "demand": 140.0},
+            {"name": "East Fort Central Commercial Market", "lat": 8.4850, "lng": 76.9480, "demand": 120.0},
+            {"name": "Kazhakkoottam Tech Corridor", "lat": 8.5720, "lng": 76.8680, "demand": 130.0},
+            {"name": "Palayam Business District", "lat": 8.5020, "lng": 76.9520, "demand": 110.0},
+        ]
+    },
+    "guwahati": {
+        "city_name": "Guwahati (Gateway to Northeast)",
+        "state": "Assam",
+        "depot": {"name": "Amingaon Inland Container Depot ICD", "lat": 26.1820, "lng": 91.6750},
+        "stops": [
+            {"name": "GS Road Commercial High Street", "lat": 26.1550, "lng": 91.7750, "demand": 130.0},
+            {"name": "Fancy Bazaar Wholesale Trade Hub", "lat": 26.1850, "lng": 91.7450, "demand": 160.0},
+            {"name": "Khanapara Gateway Logistics Point", "lat": 26.1150, "lng": 91.8250, "demand": 140.0},
+            {"name": "Palasbari Industrial Corridor", "lat": 26.1280, "lng": 91.5050, "demand": 150.0},
+            {"name": "Dispur Capital Logistics Zone", "lat": 26.1420, "lng": 91.7920, "demand": 110.0},
+        ]
+    },
+    "amritsar": {
+        "city_name": "Amritsar",
+        "state": "Punjab",
+        "depot": {"name": "Attari Wagah Integrated Check Post Hub", "lat": 31.6050, "lng": 74.6050},
+        "stops": [
+            {"name": "Focal Point Industrial Estate", "lat": 31.6250, "lng": 74.9250, "demand": 160.0},
+            {"name": "Hall Bazaar Central Trade Zone", "lat": 31.6320, "lng": 74.8750, "demand": 130.0},
+            {"name": "Ranjit Avenue Commercial Plaza", "lat": 31.6580, "lng": 74.8550, "demand": 110.0},
+            {"name": "Chheharta Industrial Area", "lat": 31.6380, "lng": 74.7950, "demand": 140.0},
+            {"name": "Majitha Road Freight Hub", "lat": 31.6750, "lng": 74.8950, "demand": 120.0},
+        ]
+    },
+    "dehradun": {
+        "city_name": "Dehradun (Doon Valley)",
+        "state": "Uttarakhand",
+        "depot": {"name": "Selaqui Industrial Freight Area", "lat": 30.3650, "lng": 77.8550},
+        "stops": [
+            {"name": "Patel Nagar Commercial Hub", "lat": 30.3050, "lng": 78.0150, "demand": 120.0},
+            {"name": "Rajpur Road Premium Business Strip", "lat": 30.3450, "lng": 78.0650, "demand": 110.0},
+            {"name": "Harrawala Transport Terminal", "lat": 30.2650, "lng": 78.0950, "demand": 140.0},
+            {"name": "Paltan Bazaar Central Market", "lat": 30.3220, "lng": 78.0420, "demand": 130.0},
+            {"name": "Vikasnagar Agricultural Trade Zone", "lat": 30.4850, "lng": 77.7750, "demand": 150.0},
+        ]
+    },
+    "varanasi": {
+        "city_name": "Varanasi (Kashi)",
+        "state": "Uttar Pradesh",
+        "depot": {"name": "Ramnagar Multi-Modal Inland Port", "lat": 25.2650, "lng": 83.0350},
+        "stops": [
+            {"name": "Shivpur Industrial Hub", "lat": 25.3650, "lng": 82.9550, "demand": 140.0},
+            {"name": "Chowk & Godowlia Central Silk Market", "lat": 25.3120, "lng": 83.0080, "demand": 130.0},
+            {"name": "Lanka Commercial Strip BHU", "lat": 25.2820, "lng": 82.9980, "demand": 110.0},
+            {"name": "Babatpur Airport Cargo Complex", "lat": 25.4520, "lng": 82.8580, "demand": 150.0},
+            {"name": "Cantonment Commercial District", "lat": 25.3350, "lng": 82.9850, "demand": 120.0},
+        ]
+    },
+    "raipur": {
+        "city_name": "Raipur (Steel & Mining Capital)",
+        "state": "Chhattisgarh",
+        "depot": {"name": "Urla Industrial Growth Centre", "lat": 21.3150, "lng": 81.5950},
+        "stops": [
+            {"name": "Bhanpuri Logistics Freight Corridor", "lat": 21.2950, "lng": 81.6450, "demand": 170.0},
+            {"name": "Naya Raipur Atal Nagar Smart Hub", "lat": 21.1650, "lng": 81.7850, "demand": 130.0},
+            {"name": "Pandri Cloth Wholesale Market", "lat": 21.2580, "lng": 81.6520, "demand": 140.0},
+            {"name": "Siltara Heavy Industrial Area", "lat": 21.3850, "lng": 81.6850, "demand": 180.0},
+            {"name": "Jaistambh Chowk Commercial Center", "lat": 21.2420, "lng": 81.6320, "demand": 110.0},
+        ]
     }
 }
 
@@ -282,7 +462,7 @@ class IndianGeocodingService:
         # 4. Clean query for live OpenStreetMap Nominatim geocoding
         # Strip common instructions & weight tokens
         import re
-        clean_q = re.sub(r"(add|urgent|delivery|deliver|to|at|in|stop|order|parcel|cargo|\d+\s*(kg|kilos|kgs)?|heavy|express)", " ", raw_low)
+        clean_q = re.sub(r"(switch\s*to|switch|move\s*to|move|change\s*to|change|go\s*to|select\s*city|add\s*delivery\s*to|add\s*stop\s*at|add|urgent|delivery|deliver|to|at|in|stop|order|parcel|cargo|\d+\s*(kg|kilos|kgs)?|heavy|express|hub)", " ", raw_low)
         clean_q = re.sub(r"[^a-zA-Z\s]", " ", clean_q).strip()
 
         if len(clean_q) < 3:
@@ -290,7 +470,7 @@ class IndianGeocodingService:
 
         if clean_q in cls._cache:
             name, lat, lng, state = cls._cache[clean_q]
-            return {"name": name, "lat": lat, "lng": lng, "state": state, "is_known_hub": False}
+            return {"name": name, "lat": lat, "lng": lng, "state": state, "is_known_hub": is_switch_intent}
 
         try:
             url = f"https://nominatim.openstreetmap.org/search?q={clean_q}+india&format=json&limit=1&countrycodes=in"
@@ -315,7 +495,7 @@ class IndianGeocodingService:
                             "lat": lat,
                             "lng": lng,
                             "state": state,
-                            "is_known_hub": False
+                            "is_known_hub": is_switch_intent
                         }
         except Exception as e:
             logger.warning(f"Nominatim geocoding failed for '{clean_q}': {e}")
