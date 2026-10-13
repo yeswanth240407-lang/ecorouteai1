@@ -1,6 +1,15 @@
 import os
-from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+
+# Load .env without external python-dotenv dependency
+_env_path = Path(__file__).resolve().parent.parent / ".env"
+if _env_path.exists():
+    with open(_env_path, "r", encoding="utf-8") as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _v = _line.split("=", 1)
+                os.environ.setdefault(_k.strip(), _v.strip())
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
