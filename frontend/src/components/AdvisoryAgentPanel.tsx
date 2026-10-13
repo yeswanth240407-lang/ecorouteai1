@@ -127,9 +127,10 @@ export default function AdvisoryAgentPanel({ scenario, optimizationResult }: Adv
           <div>
             <div className="font-semibold text-xs text-white flex items-center space-x-1.5">
               <span>Predictive Risk &amp; Advisory Agent</span>
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium px-1.5 py-0.2 rounded-full">Gemini</span>
               <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
             </div>
-            <p className="text-[10px] text-slate-400">Proactive Smart Alerts · Carbon Credit Forecasting</p>
+            <p className="text-[10px] text-slate-400">Proactive Gemini Intelligence · Carbon Credit Forecasting</p>
           </div>
         </div>
         <button

@@ -14,6 +14,7 @@ import math
 import random
 import time
 from typing import Any, Dict, List
+from app.services.gemini_service import GeminiService
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ def _traffic_info(level: float):
 # Main agent entry-point
 # ─────────────────────────────────────────────────────────────────────────────
 
-def run_advisory_agent(scenario: Dict[str, Any], optimization_result: Dict[str, Any] | None = None) -> Dict[str, Any]:
+async def run_advisory_agent(scenario: Dict[str, Any], optimization_result: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """
     Analyse the given scenario + optional optimization result and return
     a structured advisory payload.
@@ -262,10 +263,37 @@ def run_advisory_agent(scenario: Dict[str, Any], optimization_result: Dict[str, 
         },
     ]
 
+    # ── 8. Gemini AI Advisory Insight ─────────────────────────────────────────
+    gemini_insight = None
+    try:
+        gemini_insight = await GeminiService.generate_advisory_insights(
+            depot_name=depot.get("name", "Regional Hub"),
+            stops_count=len(stops),
+            weather=weather,
+            traffic=traffic,
+            risk_score=risk_score
+        )
+        if gemini_insight:
+            recommendations.insert(0, {
+                "id": "GEMINI_INSIGHT",
+                "icon": "✨",
+                "priority": "HIGH",
+                "title": "Gemini AI Predictive Strategy",
+                "detail": gemini_insight,
+                "impact": "Real-time AI situational adjustment across corridor"
+            })
+            thought_chain.append({
+                "agent": "Gemini AI Agent",
+                "avatar": "✨",
+                "thought": "Generated Gemini deep-reasoning dispatch advisory for route corridor."
+            })
+    except Exception as e:
+        print("[AdvisoryAgent] Gemini insight skipped:", e)
+
     duration_ms = round((time.time() - t0) * 1000, 1)
 
     return {
-        "agent_name": "Predictive Risk & Advisory Agent",
+        "agent_name": "Predictive Risk & Advisory Agent (Gemini Powered)",
         "agent_avatar": "🧭",
         "risk_score": risk_score,
         "risk_label": risk_label,
@@ -273,6 +301,7 @@ def run_advisory_agent(scenario: Dict[str, Any], optimization_result: Dict[str, 
         "alerts": alerts,
         "recommendations": recommendations,
         "carbon_forecast": carbon_forecast,
+        "gemini_insight": gemini_insight,
         "thought_chain": thought_chain,
         "stats": {
             "stops_analysed": len(stops),

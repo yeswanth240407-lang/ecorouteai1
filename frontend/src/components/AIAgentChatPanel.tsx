@@ -173,9 +173,10 @@ export default function AIAgentChatPanel({
           <div>
             <div className="font-semibold text-xs text-white flex items-center space-x-1.5">
               <span>Autonomous Dispatch Agent</span>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium px-1.5 py-0.2 rounded-full">Gemini</span>
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             </div>
-            <p className="text-[10px] text-slate-400">Natural Language Fleet Orchestrator</p>
+            <p className="text-[10px] text-slate-400">Google Gemini AI Fleet Orchestrator</p>
           </div>
         </div>
         <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono">

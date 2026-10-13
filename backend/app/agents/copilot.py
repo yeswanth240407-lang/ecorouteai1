@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from app.models.schemas import Stop, Vehicle, VehicleType, OptimizationPriority, RouteRequest
 from app.agents.graph import eco_route_app
 from app.services.geocoding_service import IndianGeocodingService, INDIAN_HUBS_DB
+from app.services.gemini_service import GeminiService
 
 class AgentChatMessage(BaseModel):
     message: str
@@ -279,7 +280,7 @@ class LogisticsAICopilot:
             action_taken = "CHANGE_PRIORITY"
             reply = "Optimization objective updated to **FASTEST**. Route re-calculated to prioritize highways."
 
-        elif any(w in user_msg for w in ["green", "greenest", "eco", "emission", "co2", "carbon"]):
+        elif any(w in user_msg for w in ["green", "greenest", "eco"]) and any(w in user_msg for w in ["optimize", "prioritize", "priority", "switch"]):
             priority = OptimizationPriority.GREENEST.value
             thought_chain.append({
                 "agent": "Emissions Agent",
@@ -311,18 +312,22 @@ class LogisticsAICopilot:
 
         else:
             thought_chain.append({
-                "agent": "Explainer Agent",
-                "avatar": "💡",
-                "thought": "Processing query. Providing available Indian logistics hubs guidance."
+                "agent": "Gemini AI Agent",
+                "avatar": "✨",
+                "thought": f"Consulting Google Gemini AI to analyze dispatch query: '{req.message}'"
             })
-            reply = (
-                f"I am Eco RouteAI. Currently managing dispatch for **{depot.name}** with **{len(stops)} stops**.\n"
-                f"You can name any Indian city or town, for example:\n"
-                f"• *'Ponneri'* or *'Add delivery to Ponneri 75kg'*\n"
-                f"• *'Add urgent delivery to Indiranagar (50 kg)'*\n"
-                f"• *'Switch to Chennai'*, *'Switch to Bengaluru'*, *'Switch to Mumbai'*\n"
-                f"• *'Prioritize fastest transit'* or *'Optimize for greenest emissions'*"
-            )
+            gemini_ans = await GeminiService.answer_general_query(req.message, depot.name, len(stops))
+            if gemini_ans:
+                reply = gemini_ans
+            else:
+                reply = (
+                    f"I am Eco RouteAI powered by Google Gemini. Currently managing dispatch for **{depot.name}** with **{len(stops)} stops**.\n"
+                    f"You can name any Indian city or town, for example:\n"
+                    f"• *'Ponneri'* or *'Add delivery to Ponneri 75kg'*\n"
+                    f"• *'Add urgent delivery to Indiranagar (50 kg)'*\n"
+                    f"• *'Switch to Chennai'*, *'Switch to Bengaluru'*, *'Switch to Mumbai'*\n"
+                    f"• *'Prioritize fastest transit'* or *'Optimize for greenest emissions'*"
+                )
 
         # Step 2: If an action modified the network or priorities, solve with OR-Tools
         opt_result = None

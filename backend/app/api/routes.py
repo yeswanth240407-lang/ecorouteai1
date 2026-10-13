@@ -286,7 +286,7 @@ async def advisory_agent_endpoint(body: AdvisoryRequestBody):
     returns smart alerts, recommendations, and carbon credit forecasts.
     """
     try:
-        result = run_advisory_agent(
+        result = await run_advisory_agent(
             scenario=body.scenario,
             optimization_result=body.optimization_result,
         )
