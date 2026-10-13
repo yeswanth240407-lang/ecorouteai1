@@ -99,15 +99,16 @@ export default function EcoRouteAIDashboard() {
     } catch (err: any) {
       console.error("API error:", err);
       try {
-        const directRes = await fetch(`http://127.0.0.1:8000/api/routes/sample?city=${cityKey}`);
+        const backendBase = process.env.NEXT_PUBLIC_BACKEND_URL || "https://ecoroute-backend-bsi5.onrender.com";
+        const directRes = await fetch(`${backendBase}/api/routes/sample?city=${cityKey}`);
         if (directRes.ok) {
           const directData = await directRes.json();
           setScenario(directData);
-          await executeOptimization(directData, currentPriority, "http://127.0.0.1:8000");
+          await executeOptimization(directData, currentPriority, backendBase);
           setErrorMessage(null);
         }
       } catch (fallbackErr: any) {
-        setErrorMessage("Unable to connect to Eco RouteAI backend. Ensure FastAPI server is running on port 8000.");
+        setErrorMessage("Unable to connect to Eco RouteAI backend. Please check the backend service status.");
       }
     } finally {
       setIsLoading(false);

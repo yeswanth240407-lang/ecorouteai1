@@ -92,7 +92,8 @@ export default function AIAgentChatPanel({
           }),
         });
       } catch (directErr) {
-        res = await fetch("http://127.0.0.1:8000/api/routes/agent-chat", {
+        const backendBase = process.env.NEXT_PUBLIC_BACKEND_URL || "https://ecoroute-backend-bsi5.onrender.com";
+        res = await fetch(`${backendBase}/api/routes/agent-chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
